@@ -4,5 +4,6 @@ Besides implementing such processes, you must also answer the following question
 1.Are your processes Web Services? 
 2.Is your system time and/or space de-coupled? 
 3.Is your system a message queue? 
-4.Is your system a publish/subscribe system? 5.What are the failure modes of your system?
-5. 
+4.Is your system a publish/subscribe system? 
+ - Yes, our system is a publish/subscribe system.
+5.What are the failure modes of your system?
