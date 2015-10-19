@@ -1,10 +1,14 @@
 import Interfaces.ISink;
 
+import java.net.DatagramSocket;
+
 public class Sink implements ISink {
+
+    private DatagramSocket socket;
 
     public Sink()
     {
-
+        socket
     }
 
     @Override
