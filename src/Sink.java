@@ -1,9 +1,6 @@
 import Interfaces.ISink;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.*;
 
 public class Sink implements ISink {
@@ -19,8 +16,8 @@ public class Sink implements ISink {
     private void initiate(){
         try {
             String ipAddress = System.console().readLine();
-            sinkSocket = new Socket(ipAddress, 7000);
-            subscribe();
+            sinkSocket = new Socket(ipAddress, 7000); //auto-subscribe
+            System.out.println("Connected to "+ ipAddress);
         }
         catch(UnknownHostException l)
         {
@@ -42,9 +39,15 @@ public class Sink implements ISink {
 
     @Override
     public void listen() {
+        System.out.println("Listening...");
+        DataInputStream input;
         try {
-            BufferedReader input = new BufferedReader(new InputStreamReader(sinkSocket.getInputStream()));
-            display(input.readLine());
+            while(true)
+            {
+               input = new DataInputStream(sinkSocket.getInputStream());
+               String s = input.readUTF();
+               display(s);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,21 +55,14 @@ public class Sink implements ISink {
 
     @Override
     public void subscribe() {
-        try {
-            OutputStream outputStream = sinkSocket.getOutputStream();
-            outputStream.write(1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
     @Override
     public void unsubscribe()
     {
         try {
-            OutputStream outputStream = sinkSocket.getOutputStream();
-            outputStream.write(0);
-            outputStream.close();
+            sinkSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -83,8 +79,6 @@ public class Sink implements ISink {
     {
         System.out.println("Ready to sync... Enter Server IP Address...");
         Sink sink = new Sink();
-        while(true) {
-            sink.listen();
-        }
+        sink.listen();
     }
 }
