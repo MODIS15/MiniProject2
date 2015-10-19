@@ -5,13 +5,16 @@ import java.net.SocketException;
 
 public class Sink implements ISink {
 
-    private DatagramSocket socket;
+    private DatagramSocket inputSocket;
+    private DatagramSocket outputSocket;
+
 
     public Sink()
     {
         try
         {
-            socket = new DatagramSocket();
+            inputSocket = new DatagramSocket(7000);
+            outputSocket = new DatagramSocket(7001);
         }
         catch (SocketException e)
         {
