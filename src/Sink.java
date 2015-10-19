@@ -1,6 +1,7 @@
 import Interfaces.ISink;
 
 import java.net.DatagramSocket;
+import java.net.SocketException;
 
 public class Sink implements ISink {
 
@@ -8,7 +9,15 @@ public class Sink implements ISink {
 
     public Sink()
     {
-        socket
+        try
+        {
+            socket = new DatagramSocket();
+        }
+        catch (SocketException e)
+        {
+            System.out.println("Datagram Socket Failed...");
+            e.printStackTrace();
+        }
     }
 
     @Override
