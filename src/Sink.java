@@ -15,7 +15,7 @@ public class Sink implements ISink {
         }
         catch (SocketException e)
         {
-            System.out.println("Datagram Socket Failed...");
+            System.out.println("Datagram Socket creation failed...");
             e.printStackTrace();
         }
     }
