@@ -2,11 +2,11 @@ package Interfaces;
 
 public interface ISink
 {
-    void display();
+    void display(String m);
 
     void listen();
 
     void subscribe();
 
-    boolean unsubscribe();
+    void unsubscribe();
 }
