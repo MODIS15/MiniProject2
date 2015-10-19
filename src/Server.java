@@ -1,10 +1,11 @@
 import Interfaces.IServer;
+import sun.security.x509.IPAddressName;
 
 import java.util.ArrayList;
 
 public class Server implements IServer {
-    private ArrayList<String> sinks;
-    private ArrayList<String> sources;
+    private ArrayList<IPAddressName> sinks;
+    private ArrayList<IPAddressName> sources;
 
     public Server()
     {
