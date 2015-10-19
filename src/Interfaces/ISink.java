@@ -6,7 +6,7 @@ public interface ISink
 
     void listen();
 
-    boolean subscribe();
+    void subscribe();
 
     boolean unsubscribe();
 }
