@@ -1,9 +1,21 @@
-public interface Source
-{
-    void sendMessage(String message);
+import Interfaces.ISource;
 
-    void connectToServer();
+/**
+ * Created by FamilienMarstrand on 10/19/2015.
+ */
+public class Source implements ISource {
+    @Override
+    public void sendMessage(String message) {
 
-    void disconnectFromServer();
+    }
+
+    @Override
+    public void connectToServer() {
+
+    }
+
+    @Override
+    public void disconnectFromServer() {
+
+    }
 }
-

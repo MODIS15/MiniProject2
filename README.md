@@ -15,19 +15,19 @@ Your system must have this functionality no matter the number of sources and sin
 
 Your system must support both sources and sinks entering and exiting the system. E.g., this should be a valid series of events:
 
-Source process "A1" starts
-Source process "A2" starts
-Sink process "B1" starts
+Interfaces.ISource process "A1" starts
+Interfaces.ISource process "A2" starts
+Interfaces.ISink process "B1" starts
 A1 inputs "Message 1" [i.e., you type "Message 1"]
 B1 outputs "Message 1"
-Sink process "B2" starts
+Interfaces.ISink process "B2" starts
 A2 inputs "Message 2"
 B1 outputs "Message 2"
 B2 outputs "Message 2"
 A2 terminates
-Source process "A3" starts. 
+Interfaces.ISource process "A3" starts.
 B1 terminates
-Sink process B3 starts
+Interfaces.ISink process B3 starts
 A3 inputs "Message 3"
 B2 outputs "Message 3"
 B3 outputs "Message 3"
@@ -50,7 +50,7 @@ Rules
 Submit in groups as in the previous projects. Your expected load is 16 hours/person (10 hours pr. person pr. week for two weeks; substracting lectures and reading).
 
 Your submission should comprise a single .zip-file containing:
-•Source code. You can use languages different from Java, but must then expect less support from teacher/TAs. Please clear exotic languages with course manager before beginning. 
+•Interfaces.ISource code. You can use languages different from Java, but must then expect less support from teacher/TAs. Please clear exotic languages with course manager before beginning.
 •A file feedback.txt very briefly reporting your major obstacles and a summary of your time consumption (hours pr. group member, anonymized).
 •A file answers.txt answering the above questions.
 

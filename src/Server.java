@@ -1,6 +1,11 @@
-public interface Server {
-    //Collection<Sink> sinks;
-    //Collection<Source> sources;
+import Interfaces.IServer;
 
-    void notifySink(String message);
+/**
+ * Created by FamilienMarstrand on 10/19/2015.
+ */
+public class Server implements IServer {
+    @Override
+    public void notifySink(String message) {
+
+    }
 }
