@@ -1,9 +1,12 @@
 import Interfaces.ISink;
 
-/**
- * Created by FamilienMarstrand on 10/19/2015.
- */
 public class Sink implements ISink {
+
+    public Sink()
+    {
+
+    }
+
     @Override
     public void display() {
 
