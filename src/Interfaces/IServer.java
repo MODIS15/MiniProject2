@@ -1,8 +1,8 @@
 package Interfaces;
 
-public interface IServer {
-    //Collection<Interfaces.ISink> sinks;
-    //Collection<Interfaces.ISource> sources;
+import java.net.Socket;
 
-    void notifySink(String message);
+public interface IServer {
+
+    void notifySink(Socket source);
 }

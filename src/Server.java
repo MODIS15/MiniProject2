@@ -1,6 +1,6 @@
 import Interfaces.IServer;
-import sun.security.x509.IPAddressName;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -9,7 +9,6 @@ import java.util.ArrayList;
 
 public class Server implements IServer {
     private ArrayList<Socket> sinks;
-    private ArrayList<Socket> sources;
     private ServerSocket sinkSocket;
     private ServerSocket sourceSocket;
 
@@ -17,14 +16,16 @@ public class Server implements IServer {
 
     public Server()
     {
-        //Arrange
         sinks = new ArrayList<>();
-        sources = new ArrayList<>();
 
-        setSinks(); // Need to create a single thread
-        setSources(); //Need to create a single thread
+        //Threading
+        Runnable runSinks = () -> {
+            setSinks();
+        };
+        Thread sinksThread = new Thread(runSinks);
+        sinksThread.start();
 
-
+        listenSources();
     }
 
     private void setSinks(){
@@ -35,22 +36,23 @@ public class Server implements IServer {
                 Socket s = sinkSocket.accept();
                 sinks.add(s);
                 System.out.println("Connection accepted " + s.getInetAddress());
-                notifySink("Hej");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void setSources(){
+    private void listenSources(){
         try {
             System.out.println("Waiting for connection from sources...");
             sinkSocket = new ServerSocket(7001);
             while(true) {
-                Socket s = sourceSocket.accept();
-                sources.add(s);
-                //Need to create a method that listens to each source in a new thread! REMEMBER
-                System.out.println("Connection accepted " + s.getInetAddress());
+                Socket sourceSocket = this.sourceSocket.accept();
+                System.out.println("Connection from source: " + sourceSocket.getInetAddress()+ " was established.");
+
+                notifySink(sourceSocket);
+                sourceSocket.close();
+                System.out.println("Waiting for connection from sources...");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -58,24 +60,37 @@ public class Server implements IServer {
     }
 
 
+
     @Override
-    public void notifySink(String message) {
+    public void notifySink(Socket source) {
+
         for(Socket socket : sinks)
         {
             try {
-                System.out.println("Printing");
-                DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-                outputStream.writeUTF(message);
+                if(socket.isConnected())
+                {
+                    System.out.println("Notifying");
+                    DataInputStream message = new DataInputStream(source.getInputStream());
+                    DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+
+                    outputStream.writeUTF(message.readUTF());
+
+                }
+                else
+                {
+                    System.out.println("No connection was found for "+ socket.getInetAddress().toString()+ " and was removed");
+                    sinks.remove(socket);
+                }
             }
             catch (IOException e)
             {
                 e.printStackTrace();
             }
-
-
-
         }
+        System.out.println("Notified");
     }
+
+
 
 
     public static void main(String[] args){
