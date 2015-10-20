@@ -1,6 +1,7 @@
 import Interfaces.IServer;
 import sun.security.x509.IPAddressName;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -21,7 +22,7 @@ public class Server implements IServer {
         sinks = new ArrayList<>();
         sources = new ArrayList<>();
 
-        setSinks(); // Need to create a single thread
+        setSinks();
         setSources(); //Need to create a single thread
 
 
@@ -35,7 +36,6 @@ public class Server implements IServer {
                 Socket s = sinkSocket.accept();
                 sinks.add(s);
                 System.out.println("Connection accepted " + s.getInetAddress());
-                notifySink("Hej");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -49,8 +49,8 @@ public class Server implements IServer {
             while(true) {
                 Socket s = sourceSocket.accept();
                 sources.add(s);
-                //Need to create a method that listens to each source in a new thread! REMEMBER
                 System.out.println("Connection accepted " + s.getInetAddress());
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -58,14 +58,17 @@ public class Server implements IServer {
     }
 
 
+
     @Override
-    public void notifySink(String message) {
+    public void notifySink(Socket source) {
         for(Socket socket : sinks)
         {
             try {
                 System.out.println("Printing");
+                DataInputStream message = new DataInputStream(source.getInputStream());
                 DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-                outputStream.writeUTF(message);
+
+                outputStream.writeUTF(message.readUTF());
             }
             catch (IOException e)
             {
