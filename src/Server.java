@@ -10,8 +10,6 @@ public class Server {
     private ServerSocket sinkSocket;
     private ServerSocket sourceSocket;
 
-
-
     public Server()
     {
         sinks = new ArrayList<>();
@@ -50,11 +48,11 @@ public class Server {
             System.out.println("Waiting for connection from sources...");
             sourceSocket = new ServerSocket(7001);
             while(true) {
-                Socket sourceSocket = this.sourceSocket.accept();
-                System.out.println("Connection from source: " + sourceSocket.getInetAddress()+ " was established.");
+                Socket s = this.sourceSocket.accept();
+                System.out.println("Connection from source: " + s.getInetAddress()+ " was established.");
 
-                notifySink(sourceSocket);
-                sourceSocket.close();
+                notifySink(s);
+                s.close();
                 System.out.println("Waiting for connection from sources...");
             }
         } catch (IOException e) {
@@ -64,7 +62,10 @@ public class Server {
 
     /**
      *Retrieves a message from the source socket.
-     *Goes through all sockets store din the list, sinks. If a socket is connected
+     *Goes through all sockets stored in the list of sinks. If a socket is connected it
+     *
+     *If there is no connection to the sink, then the sink has unsubscribed. The sink
+     *is then removed from the list of sinks.
      *@paramsource
      */
 
@@ -103,8 +104,6 @@ public class Server {
         }
         System.out.println("Notified");
     }
-
-
 
 
     public static void main(String[] args){
