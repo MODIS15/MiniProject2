@@ -63,7 +63,7 @@ public class Server {
     }
 
     /**
-     *Retrieves amessage from the source socket.
+     *Retrieves a message from the source socket.
      *Goes through all sockets store din the list, sinks. If a socket is connected
      *@paramsource
      */
