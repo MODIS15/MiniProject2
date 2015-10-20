@@ -18,7 +18,7 @@ public class Server {
 
         //Threading
         Runnable runSinks = () -> {
-            ListenSinks();
+            listenSinks();
         };
         Thread sinksThread = new Thread(runSinks);
         sinksThread.start();
@@ -26,7 +26,12 @@ public class Server {
         listenSources();
     }
 
-    private void ListenSinks(){
+    /**
+     *The method starts an endless while-loop and waits for sockets to accept.
+     *A connection is established to the socket and the socket is added to the collections of sinks.
+     */
+
+    private void listenSinks(){
         try {
             System.out.println("Waiting for connection...");
             sinkSocket = new ServerSocket(7000);
@@ -57,6 +62,11 @@ public class Server {
         }
     }
 
+    /**
+     *Retrieves amessage from the source socket.
+     *Goes through all sockets store din the list, sinks. If a socket is connected
+     *@paramsource
+     */
 
 
     private void notifySink(Socket source) {
