@@ -22,41 +22,52 @@ public class Source implements ISource {
         ipAddress = args[0];
         portNumber = Integer.parseInt(args[1]);
 
+        Source program = new Source();
         //TO DO - Connect to server
-        //connectToServer();
+        program.connectToServer();
         //Running the program
-        //run();
+        program.run();
     }
 
     public  void run ()
     {
-        try {
+        try
+        {
             while (running)
-                messageHandeling(System.console().readLine());
+                inputInterpreter(System.console().readLine());
         }
         catch (Exception e){System.out.println(e.getStackTrace());}
     }
 
-    private  void messageHandeling(String message)
+    private  void inputInterpreter(String message)
     {
-        if (message.trim() == "exit")
+        message = message.trim().toLowerCase();
+
+        switch (message)
         {
-            disconnectFromServer();
-            running = false;
+
+            case "exit":        disconnectFromServer();
+                                running = false;
+                                break;
+
+            case "disconnect":  disconnectFromServer();
+                                break;
+
+            case "connect":     //Disconnecting from old server
+                                disconnectFromServer();
+                                //New setup
+                                String[] ipAndPort = message.split(" ");
+                                ipAddress = ipAndPort[0];
+                                portNumber = Integer.parseInt(ipAndPort[1]);
+                                //Connect to new server
+                                connectToServer();
+                                break;
+
+            default:            sendMessage(message);
+                                break;
         }
-        else if(message.trim() == "disconnect"){disconnectFromServer();}
-        else if (message.contains("connect"))
-        {
-            //Disconnecting from old server
-            disconnectFromServer();
-            //New setup
-            String[] ipAndPort = message.split(" ");
-            ipAddress = ipAndPort[1];
-            portNumber = Integer.parseInt(ipAndPort[2]);
-            //Connect to new server
-            connectToServer();
-        }
-        else {sendMessage(message);}
+
+
     }
 
     public  void sendMessage(String message)
@@ -64,6 +75,7 @@ public class Source implements ISource {
         if(connected)
             try{
                 dos.writeUTF(message);          // UTF is a string encoding see Sn. 4.4
+                System.out.println("sending message: "+message);
             }catch (UnknownHostException e){System.out.println("Socket:"+e.getMessage());
             }catch (EOFException e){System.out.println("EOF:"+e.getMessage());
             }catch (IOException e){System.out.println("readline:"+e.getMessage());
