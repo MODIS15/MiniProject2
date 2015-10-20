@@ -3,6 +3,11 @@ import Interfaces.ISink;
 import java.io.*;
 import java.net.*;
 
+
+/**
+ * This class is responsible for receiving incoming messages from a given server,
+ * through subscription.
+ */
 public class Sink implements ISink {
 
     private Socket sinkSocket;
@@ -13,10 +18,13 @@ public class Sink implements ISink {
         initiate();
     }
 
+    /**
+     * Initialize a connection to a given host (IP-address and port)
+     */
     private void initiate(){
         try {
             String ipAddress = System.console().readLine();
-            sinkSocket = new Socket(ipAddress, 7000); //auto-subscribe
+            sinkSocket = new Socket(ipAddress, 7000); //auto-subscribe when new connection is made.
             System.out.println("Connected to "+ ipAddress);
         }
         catch(UnknownHostException l)
@@ -32,11 +40,17 @@ public class Sink implements ISink {
         }
     }
 
-
+    /**
+     * Display a given message in the console.
+     * @param message
+     */
     public void display(String message) {
         System.out.println(message);
     }
 
+    /**
+     * Listens for any messages sent from a host that the sink is subscribed to.
+     */
     @Override
     public void listen() {
         System.out.println("Listening...");
@@ -53,11 +67,9 @@ public class Sink implements ISink {
         }
     }
 
-    @Override
-    public void subscribe() {
-
-    }
-
+    /**
+     * Close connection to host.
+     */
     @Override
     public void unsubscribe()
     {
@@ -68,6 +80,9 @@ public class Sink implements ISink {
         }
     }
 
+    /**
+     * EventHandler that closes the connection to a host when the program is terminated
+     */
     private void setOnTerminateEvent()
     {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
