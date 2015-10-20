@@ -45,7 +45,7 @@ public class Server implements IServer {
     private void listenSources(){
         try {
             System.out.println("Waiting for connection from sources...");
-            sinkSocket = new ServerSocket(7001);
+            sourceSocket = new ServerSocket(7001);
             while(true) {
                 Socket sourceSocket = this.sourceSocket.accept();
                 System.out.println("Connection from source: " + sourceSocket.getInetAddress()+ " was established.");
