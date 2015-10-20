@@ -1,5 +1,3 @@
-import Interfaces.IServer;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -7,7 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class Server implements IServer {
+public class Server {
     private ArrayList<Socket> sinks;
     private ServerSocket sinkSocket;
     private ServerSocket sourceSocket;
@@ -20,7 +18,7 @@ public class Server implements IServer {
 
         //Threading
         Runnable runSinks = () -> {
-            setSinks();
+            ListenSinks();
         };
         Thread sinksThread = new Thread(runSinks);
         sinksThread.start();
@@ -28,7 +26,7 @@ public class Server implements IServer {
         listenSources();
     }
 
-    private void setSinks(){
+    private void ListenSinks(){
         try {
             System.out.println("Waiting for connection...");
             sinkSocket = new ServerSocket(7000);
@@ -61,17 +59,23 @@ public class Server implements IServer {
 
 
 
-    @Override
-    public void notifySink(Socket source) {
+    private void notifySink(Socket source) {
 
+        //Getting message from input stream
+        DataInputStream message = null;
+        try {message = new DataInputStream(source.getInputStream());}
+        catch (IOException e) {e.printStackTrace();}
+        if(message == null) return;
+
+        //Distribute message to sinks
+        DataOutputStream outputStream;
         for(Socket socket : sinks)
         {
             try {
                 if(socket.isConnected())
                 {
                     System.out.println("Notifying");
-                    DataInputStream message = new DataInputStream(source.getInputStream());
-                    DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+                    outputStream = new DataOutputStream(socket.getOutputStream());
 
                     outputStream.writeUTF(message.readUTF());
 
