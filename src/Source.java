@@ -18,9 +18,12 @@ public class Source implements ISource {
     public static void main(String[] args)
     {
         running = true;
-
-        ipAddress = args[0];
-        portNumber = Integer.parseInt(args[1]);
+        System.out.println("Please input IP-address");
+        //ipAddress = System.console().readLine();
+        ipAddress = "127.0.0.1";
+        System.out.println("Please input port number");
+        //portNumber = Integer.parseInt(System.console().readLine());
+        portNumber = 7001;
 
         Source program = new Source();
         //TO DO - Connect to server
@@ -30,13 +33,17 @@ public class Source implements ISource {
     }
 
 
+    //IdeaProjects/MiniProject2/src
+
 
     public  void run ()
     {
         try
         {
-            while (running)
-                inputInterpreter(System.console().readLine());
+            //while (running)
+                //inputInterpreter(System.console().readLine());
+                inputInterpreter("something");
+
         }
         catch (Exception e){System.out.println(e.getStackTrace());}
     }
@@ -58,9 +65,10 @@ public class Source implements ISource {
             case "connect":     //Disconnecting from old server
                                 disconnectFromServer();
                                 //New setup
-                                String[] ipAndPort = message.split(" ");
-                                ipAddress = ipAndPort[0];
-                                portNumber = Integer.parseInt(ipAndPort[1]);
+                                System.out.println("Change IP address to: ");
+                                ipAddress = System.console().readLine();
+                                System.out.println("Input port new portNumber¬l");
+                                portNumber = Integer.parseInt(System.console().readLine());
                                 //Connect to new server
                                 connectToServer();
                                 break;
@@ -80,7 +88,7 @@ public class Source implements ISource {
                 System.out.println("sending message: "+message);
             }catch (UnknownHostException e){System.out.println("Socket:"+e.getMessage());
             }catch (EOFException e){System.out.println("EOF:"+e.getMessage());
-            }catch (IOException e){System.out.println("readline:"+e.getMessage());
+            }catch (IOException e){System.out.println(e.getMessage());
             }
         else
             System.out.println("Program is not connected, connect before sending messages!");
@@ -93,17 +101,19 @@ public class Source implements ISource {
             socket = new Socket(ipAddress, portNumber);
             dis = new DataInputStream( socket.getInputStream());
             dos =new DataOutputStream( socket.getOutputStream());
+
             connected = true;
         }catch (UnknownHostException e){System.out.println("Socket:"+e.getMessage());
         }catch (EOFException e){System.out.println("EOF:"+e.getMessage());
         }catch (IOException e){System.out.println("readline:"+e.getMessage());
-        }finally {if(socket!=null) try {socket.close();}catch (IOException e){System.out.println("close:"+e.getMessage());}}
+        }
     }
 
     public  void disconnectFromServer()
     {
         try{
             dos.writeUTF("0");
+            socket.close();
             socket = null;
             dis = null;
             dos = null;
