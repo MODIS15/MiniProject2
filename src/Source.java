@@ -19,16 +19,12 @@ public class Source implements ISource {
     {
         running = true;
         System.out.println("Please input IP-address");
-        //ipAddress = System.console().readLine();
-        ipAddress = "127.0.0.1";
-        System.out.println("Please input port number");
-        //portNumber = Integer.parseInt(System.console().readLine());
+        ipAddress = System.console().readLine();
+
         portNumber = 7001;
 
+
         Source program = new Source();
-        //TO DO - Connect to server
-        //program.connectToServer();
-        //Running the program
         program.run();
     }
 
@@ -40,11 +36,19 @@ public class Source implements ISource {
     {
         try
         {
-            //while (running)
-                //inputInterpreter(System.console().readLine());
-                inputInterpreter("Message1");
-                inputInterpreter("Message2");
-                inputInterpreter("Message3");
+            while (true)
+            {
+                System.out.println("Type message and confirm with Enter");
+                String userInput = System.console().readLine();
+                inputInterpreter(userInput);
+            }
+
+           /*
+            inputInterpreter("message1");
+            inputInterpreter("message2");
+            inputInterpreter("message3");
+            */
+
 
         }
         catch (Exception e){System.out.println(e.getStackTrace());}
