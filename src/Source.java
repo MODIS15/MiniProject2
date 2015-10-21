@@ -27,7 +27,7 @@ public class Source implements ISource {
 
         Source program = new Source();
         //TO DO - Connect to server
-        program.connectToServer();
+        //program.connectToServer();
         //Running the program
         program.run();
     }
@@ -42,7 +42,9 @@ public class Source implements ISource {
         {
             //while (running)
                 //inputInterpreter(System.console().readLine());
-                inputInterpreter("something");
+                inputInterpreter("Message1");
+                inputInterpreter("Message2");
+                inputInterpreter("Message3");
 
         }
         catch (Exception e){System.out.println(e.getStackTrace());}
@@ -73,7 +75,9 @@ public class Source implements ISource {
                                 connectToServer();
                                 break;
 
-            default:            sendMessage(message);
+            default:            connectToServer();
+                                sendMessage(message);
+                                disconnectFromServer();
                                 break;
         }
 
@@ -85,6 +89,7 @@ public class Source implements ISource {
         if(connected)
             try{
                 dos.writeUTF(message);          // UTF is a string encoding see Sn. 4.4
+                dos.flush();
                 System.out.println("sending message: "+message);
             }catch (UnknownHostException e){System.out.println("Socket:"+e.getMessage());
             }catch (EOFException e){System.out.println("EOF:"+e.getMessage());
