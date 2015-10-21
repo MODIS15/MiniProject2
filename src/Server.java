@@ -1,10 +1,16 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
+/**
+ * The server class is responsible for notifying all connected sinks whenever a
+ * source or sources have published a message
+ */
 public class Server {
     private ArrayList<Socket> sinks;
     private ServerSocket sinkSocket;
@@ -15,9 +21,7 @@ public class Server {
         sinks = new ArrayList<>();
 
         //Threading
-        Runnable runSinks = () -> {
-            listenSinks();
-        };
+        Runnable runSinks = () -> listenSinks();
         Thread sinksThread = new Thread(runSinks);
         sinksThread.start();
 
@@ -25,10 +29,9 @@ public class Server {
     }
 
     /**
-     *The method starts an endless while-loop and waits for sockets to accept.
-     *A connection is established to the socket and the socket is added to the collections of sinks.
+     *The method is constantly listening for sockets to accept.
+     *When a connection is established to a socket, the socket is added to the collections of sinks.
      */
-
     private void listenSinks(){
         try {
             System.out.println("Waiting for connection...");
@@ -49,15 +52,42 @@ public class Server {
             sourceSocket = new ServerSocket(7001);
             while(true) {
                 Socket s = this.sourceSocket.accept();
-                System.out.println("Connection from source: " + s.getInetAddress()+ " was established.");
+                System.out.println("Connection from source: " + s.getInetAddress() + " was established.");
+                getStreamFromSource(s);
 
-                notifySink(s);
                 s.close();
                 System.out.println("Waiting for connection from sources...");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Retrieve stream from a connected source and notify sinks for every message in the stream.
+     * The connection is maintained for 15 seconds
+     * @param sourceSocket
+     */
+    private void getStreamFromSource(Socket sourceSocket) {
+        Runnable setTimeout = () -> {
+            try {
+                int timeout = 15000;
+                sourceSocket.setSoTimeout(timeout);
+                while(true){
+                    notifySink(sourceSocket);
+                }
+            } catch (SocketException e)
+            {
+                try {
+                    sourceSocket.close();
+                    System.out.println("Timeout for: "+sourceSocket.getInetAddress().toString());
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        };
+        Thread sourceTimeoutThread = new Thread(setTimeout);
+        sourceTimeoutThread.start();
     }
 
     /**
@@ -68,8 +98,6 @@ public class Server {
      *is then removed from the list of sinks.
      *@paramsource
      */
-
-
     private void notifySink(Socket source) {
 
         //Getting message from input stream
@@ -83,13 +111,13 @@ public class Server {
         for(Socket socket : sinks)
         {
             try {
-                if(socket.isConnected())
+                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+                if(!out.checkError())
                 {
                     System.out.println("Notifying");
                     outputStream = new DataOutputStream(socket.getOutputStream());
 
                     outputStream.writeUTF(message.readUTF());
-
                 }
                 else
                 {
