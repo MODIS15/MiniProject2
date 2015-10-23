@@ -32,11 +32,13 @@ public class Sink implements ISink {
             System.out.println("Invalid IP. Please try again");
             initiate();
         }
-        catch(IOException m)
+        catch(ConnectException c)
         {
-            m.printStackTrace();
-            System.out.println("Please try again");
+            System.out.println("No server found with the specified ip");
             initiate();
+        }
+        catch(IOException m){
+            m.printStackTrace();
         }
     }
 
@@ -62,8 +64,22 @@ public class Sink implements ISink {
                String s = input.readUTF();
                display(s);
             }
-        } catch (IOException e) {
+        }
+        catch( SocketException m){
+            System.out.println("Disconnected from server.");
+            initiate();
+        }
+        catch (IOException e) {
             e.printStackTrace();
+        }
+        finally {
+            if(sinkSocket != null){
+                try {
+                    sinkSocket.close();
+                } catch (IOException e) {
+                    //nothing to do
+                }
+            }
         }
     }
 

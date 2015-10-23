@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 
 /**
@@ -12,7 +13,7 @@ import java.util.ArrayList;
  * source or sources have published a message
  */
 public class Server {
-    private ArrayList<Socket> sinks;
+    private ArrayList<DataOutputStream> sinks;
     private ServerSocket sinkSocket;
     private ServerSocket sourceSocket;
 
@@ -38,7 +39,7 @@ public class Server {
             sinkSocket = new ServerSocket(7000);
             while(true) {
                 Socket s = sinkSocket.accept();
-                sinks.add(s);
+                sinks.add(new DataOutputStream(s.getOutputStream()));
                 System.out.println("Connection accepted " + s.getInetAddress());
             }
         } catch (IOException e) {
@@ -53,41 +54,18 @@ public class Server {
             while(true) {
                 Socket s = this.sourceSocket.accept();
                 System.out.println("Connection from source: " + s.getInetAddress() + " was established.");
-                getStreamFromSource(s);
 
-                s.close();
+                Runnable sinkrunnable = () -> {
+                    notifySink(s);
+                };
+                Thread sinkThread = new Thread(sinkrunnable);
+                sinkThread.start();
+
                 System.out.println("Waiting for connection from sources...");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Retrieve stream from a connected source and notify sinks for every message in the stream.
-     * The connection is maintained for 15 seconds
-     * @param sourceSocket
-     */
-    private void getStreamFromSource(Socket sourceSocket) {
-        Runnable setTimeout = () -> {
-            try {
-                int timeout = 15000;
-                sourceSocket.setSoTimeout(timeout);
-                while(true){
-                    notifySink(sourceSocket);
-                }
-            } catch (SocketException e)
-            {
-                try {
-                    sourceSocket.close();
-                    System.out.println("Timeout for: "+sourceSocket.getInetAddress().toString());
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
-        };
-        Thread sourceTimeoutThread = new Thread(setTimeout);
-        sourceTimeoutThread.start();
     }
 
     /**
@@ -100,37 +78,46 @@ public class Server {
      */
     private void notifySink(Socket source) {
 
-        //Getting message from input stream
-        DataInputStream message = null;
-        try {message = new DataInputStream(source.getInputStream());}
+        //Getting input stream
+        DataInputStream dataInputStream = null;
+        try {dataInputStream = new DataInputStream(source.getInputStream());}
         catch (IOException e) {e.printStackTrace();}
-        if(message == null) return;
+        if(dataInputStream == null) return;
 
         //Distribute message to sinks
-        DataOutputStream outputStream;
-        for(Socket socket : sinks)
-        {
-            try {
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                if(!out.checkError())
-                {
-                    System.out.println("Notifying");
-                    outputStream = new DataOutputStream(socket.getOutputStream());
+        try {
+            DataOutputStream outputStream;
+            String message = dataInputStream.readUTF();
 
-                    outputStream.writeUTF(message.readUTF());
-                }
-                else
-                {
-                    System.out.println("No connection was found for "+ socket.getInetAddress().toString()+ " and was removed");
-                    sinks.remove(socket);
-                }
-            }
-            catch (IOException e)
+            for(DataOutputStream stream : sinks)
             {
-                e.printStackTrace();
+                try {
+                    PrintWriter out = new PrintWriter(stream, true);
+                    if(!out.checkError())
+                    {
+                        System.out.println("Notifying");
+                        stream.writeUTF(message);
+                    }
+                    else
+                    {
+                        System.out.println("No connection was found and was removed");
+                        sinks.remove(stream);
+                    }
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
             }
+            System.out.println("Notified");
+
+
+
         }
-        System.out.println("Notified");
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
