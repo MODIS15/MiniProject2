@@ -1,7 +1,11 @@
 import Interfaces.ISink;
 
-import java.io.*;
-import java.net.*;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 
 /**
@@ -12,10 +16,16 @@ public class Sink implements ISink {
 
     private Socket sinkSocket;
 
-    public Sink()
+    private Sink()
     {
         setOnTerminateEvent();
         initiate();
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Ready to sync... Enter Server IP Address...");
+        Sink sink = new Sink();
+        sink.listen();
     }
 
     /**
@@ -60,9 +70,9 @@ public class Sink implements ISink {
         try {
             while(true)
             {
-               input = new DataInputStream(sinkSocket.getInputStream());
-               String s = input.readUTF();
-               display(s);
+                input = new DataInputStream(sinkSocket.getInputStream());
+                String s = input.readUTF();
+                display(s);
             }
         }
         catch( SocketException m){
@@ -91,12 +101,5 @@ public class Sink implements ISink {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Sink terminated");
         }));
-    }
-
-    public static void main(String[] args)
-    {
-        System.out.println("Ready to sync... Enter Server IP Address...");
-        Sink sink = new Sink();
-        sink.listen();
     }
 }

@@ -10,21 +10,22 @@ import java.util.ArrayList;
  * The server class is responsible for notifying all connected sinks whenever a
  * source or sources have published a message
  */
-public class Server {
+class Server {
     private ArrayList<DataOutputStream> sinks;
-    private ServerSocket sinkSocket;
-    private ServerSocket sourceSocket;
 
-    public Server()
+    private Server()
     {
         sinks = new ArrayList<>();
 
-        //Threading
-        Runnable runSinks = () -> listenSinks();
+        Runnable runSinks = this::listenSinks;
         Thread sinksThread = new Thread(runSinks);
         sinksThread.start();
 
         listenSources();
+    }
+
+    public static void main(String[] args) {
+        Server server = new Server();
     }
 
     /**
@@ -34,7 +35,7 @@ public class Server {
     private void listenSinks(){
         try {
             System.out.println("Waiting for connection...");
-            sinkSocket = new ServerSocket(7000);
+            ServerSocket sinkSocket = new ServerSocket(7000);
             while(true) {
                 Socket s = sinkSocket.accept();
                 sinks.add(new DataOutputStream(s.getOutputStream()));
@@ -45,17 +46,18 @@ public class Server {
         }
     }
 
+    /**
+     * Listen for sources that connects to the server
+     */
     private void listenSources(){
         try {
             System.out.println("Waiting for connection from sources...");
-            sourceSocket = new ServerSocket(7001);
+            ServerSocket sourceSocket = new ServerSocket(7001);
             while(true) {
-                Socket s = this.sourceSocket.accept();
+                Socket s = sourceSocket.accept();
                 System.out.println("Connection from source: " + s.getInetAddress() + " was established.");
 
-                Runnable sinkrunnable = () -> {
-                    notifySink(s);
-                };
+                Runnable sinkrunnable = () -> notifySink(s);
                 Thread sinkThread = new Thread(sinkrunnable);
                 sinkThread.start();
 
@@ -84,7 +86,6 @@ public class Server {
 
         //Distribute message to sinks
         try {
-            DataOutputStream outputStream;
             String message = dataInputStream.readUTF();
 
             for(DataOutputStream stream : sinks)
@@ -93,12 +94,12 @@ public class Server {
                     PrintWriter out = new PrintWriter(stream, true);
                     if(!out.checkError())
                     {
-                        System.out.println("Notifying");
+                        System.out.println("Notifying: " + stream.toString());
                         stream.writeUTF(message);
                     }
                     else
                     {
-                        System.out.println("No connection was found and was removed");
+                        System.out.println("No connection was found. Sink was removed");
                         sinks.remove(stream);
                     }
                 }
@@ -107,7 +108,7 @@ public class Server {
                     e.printStackTrace();
                 }
             }
-            System.out.println("Notified");
+            System.out.println("All sinks notified");
 
 
 
@@ -116,11 +117,6 @@ public class Server {
             e.printStackTrace();
         }
 
-    }
-
-
-    public static void main(String[] args){
-        Server server = new Server();
     }
 }
 
