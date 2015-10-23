@@ -84,25 +84,12 @@ public class Sink implements ISink {
     }
 
     /**
-     * Close connection to host.
-     */
-    @Override
-    public void unsubscribe()
-    {
-        try {
-            sinkSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * EventHandler that closes the connection to a host when the program is terminated
      */
     private void setOnTerminateEvent()
     {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-           unsubscribe();
+            System.out.println("Sink terminated");
         }));
     }
 
